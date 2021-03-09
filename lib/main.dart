@@ -1,13 +1,20 @@
+import 'package:flustars/flustars.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+  //runApp前调用，初始化绑定，手势、渲染、服务等
+  WidgetsFlutterBinding.ensureInitialized();
+  int v = SpUtil.getInt("cache_count", defValue: 20);
+  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  var va = sharedPreferences.getInt("cache_count") ?? 30;
+
   runApp(ChangeNotifierProvider(
     child: MyApp(),
     create: (context) {
       /// 初始化model
-      return Counter(0);
+      return Counter(va);
   },),
   );
 }
@@ -22,6 +29,7 @@ class Counter with ChangeNotifier {
     value += 1;
     notifyListeners();
   }
+
 }
 
 class MyApp extends StatelessWidget {
@@ -48,18 +56,21 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int currentValue = 0;
 
-  void _incrementCounter() {
+  void _incrementCounter() async {
     setState(() {
       _counter++;
     });
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setInt("cache_count", currentValue);
     Provider.of<Counter>(context, listen: false).increment();
+    print("currentValue:$currentValue");
+    // SpUtil.putInt("cache_count", currentValue);
   }
 
   @override
   void initState() {
-    /// 读取缓存数据&设置
-    Provider.of<Counter>(context, listen: false).increment();
     super.initState();
   }
 
@@ -92,8 +103,18 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             Consumer<Counter>(builder: (context, counter, child){
+              currentValue = counter.value;
               return Text("${counter.value}");
             }),
+
+            InkWell(
+              child: Text("获取值"),
+              onTap: () async {
+                SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                var va = sharedPreferences.getInt("cache_count");
+                print("$va");
+              },
+            )
           ],
         ),
       ),
