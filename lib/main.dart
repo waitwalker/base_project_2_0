@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(ChangeNotifierProvider(
     child: MyApp(),
-    create: (context){
+    create: (context) {
       /// 初始化model
-      return Counter();
+      return Counter(0);
   },),
   );
 }
 
 class Counter with ChangeNotifier {
   /// 变量
-  int value = 100;
+  int value = 0;
+
+  Counter(this.value);
+
   void increment() {
     value += 1;
-
-
-
     notifyListeners();
   }
 }
@@ -53,6 +54,13 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
     Provider.of<Counter>(context, listen: false).increment();
+  }
+
+  @override
+  void initState() {
+    /// 读取缓存数据&设置
+    Provider.of<Counter>(context, listen: false).increment();
+    super.initState();
   }
 
   @override
