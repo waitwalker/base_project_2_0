@@ -31,6 +31,8 @@ dependencies:
   provider: ^5.0.0
   flustars: ^2.0.1
   shared_preferences: ^2.0.3
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
